@@ -1,18 +1,18 @@
 class My_URL {
-  scheme: string;
+  host: string;
+  path: string;
 
   constructor(url: string) {
-    const [scheme, remainingUrl] = url.split("://", 2);
-
-    if (scheme !== "http") {
-      throw new Error("Only http scheme is supported");
+    if (!url.includes("/")) {
+      url += "/"
     }
+    const [host, remainingPath] = url.split("://", 2);
 
-    this.scheme = scheme;
+    this.host = host;
+    this.path = "/" + (remainingPath || "");
   }
+  
+  request() {
 
-
-
-
-
+  }
 }
