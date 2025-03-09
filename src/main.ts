@@ -8,10 +8,9 @@ class My_URL {
     if (!url.includes("/")) {
       url += "/"
     }
-    const [host, remainingPath] = url.split("://", 2);
-
-    this.host = host;
-    this.path = "/" + (remainingPath || "");
+    const parts = url.split("/");
+    this.host = parts[0];
+    this.path = "/" + parts.slice(1).join("/");
   }
 
   async request(): Promise<string> {
@@ -107,6 +106,6 @@ async function main() {
   await url.load(url);
 }
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   main().catch(console.error);
 }
