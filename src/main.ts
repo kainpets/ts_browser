@@ -81,8 +81,10 @@ class My_URL {
           }
 
           // Send the request
-          const request = `GET ${this.path} HTTP/1.0\r\n` +
-            `Host: ${this.host}\r\n\r\n`;
+          const request = `GET ${this.path} HTTP/1.1\r\n` +
+            `Host: ${this.host}\r\n` +
+            `User-Agent: TS Web Browser\r\n` +
+            `Connection: close\r\n\r\n`;
 
           finalSocket.write(request, 'utf-8');
 
