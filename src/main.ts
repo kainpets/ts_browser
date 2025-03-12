@@ -3,30 +3,24 @@ import tls from "tls";
 import fs from "fs";
 
 class My_URL {
-  host: string;
+  host: string = "";
   path: string;
   scheme: string = "http";
-  port: number;
+  port: number = 80;
 
   constructor(url: string) {
     try {
       // Parse scheme (http/https/file/empty string)
       if (url === "") {
         this.scheme = "file";
-        try {
-          const file = fs.promises.readFile("../../test.txt")
-        } catch (e) {
-          console.error("Something went wrong", e)
-        }
+        this.path = "/Users/pawelstepniak/Desktop/programming.nosync/test.txt";
+        // Skip the rest of the URL parsing for file scheme
+        return;
       } else if (url.startsWith("file:///")) {
         this.scheme = "file";
-        const path = url.substring(8);
-
-        try {
-          const file = fs.promises.readFile(path)
-        } catch (e) {
-          console.error("Something went wrong", e)
-        }
+        this.path = url.substring(8);
+        // Skip the rest of the URL parsing for file scheme
+        return;
       } else if (url.includes("://")) {
         const [scheme, remainder] = url.split("://", 2);
         this.scheme = scheme.toLowerCase();
@@ -37,6 +31,7 @@ class My_URL {
         }
       }
 
+      // The following code should only run for HTTP/HTTPS URLs
       // Parse host and path
       if (!url.includes("/")) {
         url += "/";
@@ -69,6 +64,16 @@ class My_URL {
   }
 
   async request(): Promise<string> {
+    if (this.scheme === "file") {
+      try {
+        const data = await fs.promises.readFile(this.path, 'utf-8')
+        return data;
+      } catch (e) {
+        console.error(`Error reading file ${this.path}:`, e);
+        return `Error: Could not read file ${this.path}`;
+      }
+    }
+
     return new Promise((resolve, reject) => {
       let socket = new net.Socket();
 
@@ -182,13 +187,14 @@ async function load(url: My_URL) {
 }
 
 async function main() {
-  if (process.argv.length < 3) {
-    console.error('Please provide a URL');
-    process.exit(1);
-  }
-
   try {
-    const url = new My_URL(process.argv[2]);
+    let url;
+    if (process.argv.length < 3 || process.argv[2] === "") {
+      // No URL provided or empty URL - create URL object directly
+      url = new My_URL("");
+    } else {
+      url = new My_URL(process.argv[2]);
+    }
     await load(url);
   } catch (err) {
     console.error(err);
