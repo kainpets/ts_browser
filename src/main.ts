@@ -1,16 +1,33 @@
 import net from "net";
 import tls from "tls";
+import fs from "fs";
 
 class My_URL {
   host: string;
   path: string;
-  scheme: string;
+  scheme: string = "http";
   port: number;
 
   constructor(url: string) {
     try {
-      // Parse scheme (http/https)
-      if (url.includes("://")) {
+      // Parse scheme (http/https/file/empty string)
+      if (url === "") {
+        this.scheme = "file";
+        try {
+          const file = fs.promises.readFile("../../test.txt")
+        } catch (e) {
+          console.error("Something went wrong", e)
+        }
+      } else if (url.startsWith("file:///")) {
+        this.scheme = "file";
+        const path = url.substring(8);
+
+        try {
+          const file = fs.promises.readFile(path)
+        } catch (e) {
+          console.error("Something went wrong", e)
+        }
+      } else if (url.includes("://")) {
         const [scheme, remainder] = url.split("://", 2);
         this.scheme = scheme.toLowerCase();
         url = remainder;
@@ -18,8 +35,6 @@ class My_URL {
         if (this.scheme !== "http" && this.scheme !== "https") {
           throw new Error(`Unsupported scheme: ${this.scheme}`);
         }
-      } else {
-        this.scheme = "http";
       }
 
       // Parse host and path
