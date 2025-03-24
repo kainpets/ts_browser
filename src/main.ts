@@ -14,16 +14,14 @@ class My_URL {
       if (url === "") {
         this.scheme = "file"
         this.path = "/Users/pawelstepniak/Desktop/programming.nosync/test.txt"
-        // Skip the rest of the URL parsing for file scheme
         return
-      } else if (url.startsWith("data:")) {
+      } else if (url.startsWith("data:text/html,")) {
         this.scheme = "data"
-        this.path = url.substring(5)
+        this.path = url.substring(15)
         return
       } else if (url.startsWith("file:///")) {
         this.scheme = "file"
         this.path = url.substring(8)
-        // Skip the rest of the URL parsing for file scheme
         return
       } else if (url.includes("://")) {
         const [scheme, remainder] = url.split("://", 2)
@@ -76,6 +74,8 @@ class My_URL {
         console.error(`Error reading file ${this.path}:`, e)
         return `Error: Could not read file ${this.path}`
       }
+    } else if (this.scheme === "data") {
+      return this.path  
     }
 
     return new Promise((resolve, reject) => {
@@ -190,6 +190,7 @@ class My_URL {
         process.stdout.write(c)
       }
     }
+    process.stdout.write("\n")
   }
 }
 
